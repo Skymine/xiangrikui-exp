@@ -20,4 +20,4 @@ python3 exp.py
 ```
 
 3、开始扫描，扫描结果保存在exp.py同目录的result.txt中
-![[gif.gif]]
+![gif.gif](gif.gif)
